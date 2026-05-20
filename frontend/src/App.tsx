@@ -70,7 +70,7 @@ function App() {
   const [consoleLogs, setConsoleLogs] = useState<string[]>([
     `[System] 🤖 Aether.ai Quant Engine initialized.`,
     `[System] 🔑 Connected simulated secure wallet: 0x4e6a2fe2d8...7cf579bac0e0`,
-    `[System] 📜 Sui Move Vault Contract registered at: 0x3d8c11e7...a9e553`,
+    `[System] 📜 Sui Move Vault Contract registered at: 0xe581dc436d4e85000dd082981617689d47ceeb5ba87d17fbf8b68ea87180ade7`,
     `[System] 💾 Walrus Storage Publisher initialized. Gateway online at devnet.walrus.space`,
     `[System] 📈 Initializing historical PnL stream and loading DeepBook v3 liquidity depth...`,
     `[AI Engine] 📊 Target: SUI/USDC | Daily Drawdown Cap: 15% | Max Single Trade Slip: 0.5%`,

@@ -1,0 +1,19 @@
+# Move compiler and packaging
+/build/
+/Move.lock
+
+# Node.js / JavaScript
+/node_modules/
+.npm
+/dist/
+/.env
+/.env.local
+/.env.production
+/.env.development
+
+# System / IDE
+.DS_Store
+.vscode/
+.idea/
+*.log
+*.tmp

@@ -16,7 +16,9 @@ import {
   CheckCircle2,
   Wallet,
   Coins,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Sun,
+  Moon
 } from 'lucide-react'
 import './App.css'
 
@@ -34,6 +36,12 @@ interface TradeLedgerEntry {
 }
 
 function App() {
+  // Theme state: 'light' | 'dark'
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+
+  // Active storyteller scenario state
+  const [currentScenario, setCurrentScenario] = useState<'STABLE' | 'FUD' | 'FLASH_CRASH' | 'BULL_RUN'>('STABLE')
+
   // Navigation tabs: 'dashboard' | 'contracts'
   const [activeTab, setActiveTab] = useState<'dashboard' | 'contracts'>('dashboard')
 
@@ -101,14 +109,163 @@ function App() {
     }
   ])
 
-  const terminalEndRef = useRef<HTMLDivElement>(null)
+  const terminalScreenRef = useRef<HTMLDivElement>(null)
 
-  // Scroll terminal screen to bottom on new log
+  // Scroll terminal screen container locally to bottom on new log (fixes the window auto-scrolling bug!)
   useEffect(() => {
-    if (terminalEndRef.current) {
-      terminalEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (terminalScreenRef.current) {
+      terminalScreenRef.current.scrollTop = terminalScreenRef.current.scrollHeight
     }
   }, [consoleLogs])
+
+  // Storyteller Scenario Trigger to immediately demonstrate risk model behavior under specific market states
+  const triggerScenario = (scenario: 'STABLE' | 'FUD' | 'FLASH_CRASH' | 'BULL_RUN') => {
+    setIsAiRunning(false)
+    setCurrentScenario(scenario)
+    
+    let newPrice = suiPrice
+    let newVol: 'LOW' | 'MEDIUM' | 'HIGH' = 'LOW'
+    let newSentiment = 0.0
+    let newRsi = 50.0
+    let newMacd: 'BUY_SIGNAL' | 'NEUTRAL' | 'SELL_SIGNAL' = 'NEUTRAL'
+    let scenarioName = ''
+
+    if (scenario === 'STABLE') {
+      newVol = 'LOW'
+      newSentiment = 0.12
+      newRsi = 52.0
+      newMacd = 'NEUTRAL'
+      newPrice = parseFloat((suiPrice * (1 + (Math.random() * 0.02 - 0.01))).toFixed(4))
+      scenarioName = 'Consolidation Channel (Stable)'
+    } else if (scenario === 'FUD') {
+      newVol = 'MEDIUM'
+      newSentiment = -0.58
+      newRsi = 35.5
+      newMacd = 'SELL_SIGNAL'
+      newPrice = parseFloat((suiPrice * 0.94).toFixed(4)) // -6% drop
+      scenarioName = 'Social Media FUD Panic'
+    } else if (scenario === 'FLASH_CRASH') {
+      newVol = 'HIGH'
+      newSentiment = -0.88
+      newRsi = 14.2
+      newMacd = 'SELL_SIGNAL'
+      newPrice = parseFloat((suiPrice * 0.80).toFixed(4)) // -20% crash
+      scenarioName = 'Flash Crash (Black Swan)'
+    } else if (scenario === 'BULL_RUN') {
+      newVol = 'MEDIUM'
+      newSentiment = 0.82
+      newRsi = 79.5
+      newMacd = 'BUY_SIGNAL'
+      newPrice = parseFloat((suiPrice * 1.15).toFixed(4)) // +15% rise
+      scenarioName = 'Bull Run Momentum Breakout'
+    }
+
+    // Set states immediately
+    setSuiPrice(newPrice)
+    setVolatility(newVol)
+    setSentimentValue(newSentiment)
+    setRsiValue(newRsi)
+    setMacdState(newMacd)
+    
+    // Update chart
+    setChartPrices(prev => [...prev.slice(1), newPrice])
+
+    // Run decision math immediately
+    let action: 'HOLD' | 'HEDGE_BUY' | 'HEDGE_SELL' = 'HOLD'
+    let reasoning = ''
+    let confidence = 0.5
+    let suggestedAmount = 0
+
+    if (newVol === 'HIGH' || (newVol === 'MEDIUM' && newSentiment < -0.3)) {
+      action = 'HEDGE_BUY'
+      confidence = parseFloat((0.75 + Math.random() * 0.2).toFixed(2))
+      suggestedAmount = Math.floor(vaultTvlSui * 0.25)
+      reasoning = `RISK ALARM: High volatility (${newVol}) and highly bearish sentiment (${newSentiment}) detected during ${scenarioName}. Initiating asset flight to stable reserves. Swapping ${suggestedAmount} SUI into USDC on DeepBook v3.`
+    } else if (newSentiment > 0.4 && newRsi > 65 && hedgedUsdc > 20) {
+      action = 'HEDGE_SELL'
+      confidence = parseFloat((0.7 + Math.random() * 0.2).toFixed(2))
+      const usdcToSpend = hedgedUsdc * 0.40
+      suggestedAmount = Math.floor(usdcToSpend / newPrice)
+      reasoning = `MOMENTUM CONFIRMED: Strong social sentiment (${newSentiment}) and bullish MACD histogram during ${scenarioName}. Executing reverse rebalancing, swapping ${usdcToSpend.toFixed(2)} USDC back to long-SUI positioning.`
+    } else {
+      action = 'HOLD'
+      confidence = parseFloat((0.85).toFixed(2))
+      reasoning = `Consolidation verified during ${scenarioName}. Asset weights remain optimized. SUI remains locked inside vault safety layers.`
+    }
+
+    const randomHash = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+    const mockBlobId = `walrus-mock-${randomHash.substring(0, 32)}`
+    const timestamp = new Date().toISOString()
+
+    setConsoleLogs(prev => [
+      ...prev,
+      `[System] ⏸️ Autonomous AI simulation engine paused to let you inspect the triggered story mode.`,
+      `[Market Story] 📡 Triggered user scenario: ${scenarioName}!`,
+      `[Market Ingest] 📊 SUI Price adjusted to: $${newPrice} | RSI: ${newRsi} | Sentiment: ${newSentiment}`,
+      `[AI Quant] 🎯 Action selected: ${action} (Confidence: ${(confidence * 100).toFixed(0)}%)`,
+      `[AI Reasoning] 🧠 "${reasoning}"`,
+      `[Walrus Upload] 💾 Uploading cryptographic hedge proofs to Walrus...`,
+      `[Walrus Upload] 🚀 Published Blob! ID: ${mockBlobId} (Size: 940 Bytes)`
+    ])
+
+    // Update balances and ledger
+    if (action === 'HEDGE_BUY' && suggestedAmount > 0) {
+      const usdcAcquired = suggestedAmount * newPrice * 0.995
+      setVaultTvlSui(prev => Math.max(10, prev - suggestedAmount))
+      setHedgedUsdc(prev => prev + usdcAcquired)
+      
+      const txId = `tx-story-${Date.now().toString().slice(-4)}`
+      setLedger(prev => [
+        {
+          id: txId,
+          timestamp,
+          action: 'HEDGE_BUY',
+          amountSui: suggestedAmount,
+          usdcAmount: parseFloat(usdcAcquired.toFixed(2)),
+          gasSpent: 0.012,
+          blobId: mockBlobId,
+          status: 'SUCCESS'
+        },
+        ...prev
+      ])
+
+      setConsoleLogs(prev => [
+        ...prev,
+        `[DeepBook Trade] 🔄 Swapped ${suggestedAmount} SUI -> ${usdcAcquired.toFixed(2)} USDC via DeepBook v3`,
+        `[Smart Contract] 🔒 Trade Proof minted & recorded in proof_registry.move shared object.`
+      ])
+    } else if (action === 'HEDGE_SELL' && suggestedAmount > 0) {
+      const usdcSpent = suggestedAmount * newPrice * 1.005
+      setVaultTvlSui(prev => prev + suggestedAmount)
+      setHedgedUsdc(prev => Math.max(0, prev - usdcSpent))
+
+      const txId = `tx-story-${Date.now().toString().slice(-4)}`
+      setLedger(prev => [
+        {
+          id: txId,
+          timestamp,
+          action: 'HEDGE_SELL',
+          amountSui: suggestedAmount,
+          usdcAmount: parseFloat(usdcSpent.toFixed(2)),
+          gasSpent: 0.014,
+          blobId: mockBlobId,
+          status: 'SUCCESS'
+        },
+        ...prev
+      ])
+
+      setConsoleLogs(prev => [
+        ...prev,
+        `[DeepBook Trade] 🔄 Swapped ${usdcSpent.toFixed(2)} USDC -> ${suggestedAmount} SUI via DeepBook v3`,
+        `[Smart Contract] 🔒 Trade Proof minted & recorded in proof_registry.move shared object.`
+      ])
+    } else {
+      setConsoleLogs(prev => [
+        ...prev,
+        `[AI Engine] ⏸️ No trades triggered for stable scenario.`
+      ])
+    }
+  }
 
   // Interactive AI decision evaluation simulation loop
   useEffect(() => {
@@ -373,34 +530,45 @@ function App() {
   }).join(' ')} ${chartWidth},${chartHeight} 0,${chartHeight}`
 
   return (
-    <div className="container">
-      {/* HEADER HERO AREA */}
-      <header className="hero-section glass-panel">
-        <div className="hero-brand">
-          <div className="hero-logo-box">
-            <Cpu size={28} />
+    <div className={`app-wrapper ${theme}`}>
+      <div className="container">
+        {/* HEADER HERO AREA */}
+        <header className="hero-section glass-panel">
+          <div className="hero-brand">
+            <div className="hero-logo-box">
+              <Cpu size={28} />
+            </div>
+            <div className="hero-title-group">
+              <h1>Aether.ai</h1>
+              <p>Autonomous AI-Driven Portfolio Risk-Hedging Vault on Sui</p>
+            </div>
           </div>
-          <div className="hero-title-group">
-            <h1>Aether.ai</h1>
-            <p>Autonomous AI-Driven Portfolio Risk-Hedging Vault on Sui</p>
-          </div>
-        </div>
 
-        <div className="tab-bar">
-          <button
-            className={`tab-btn ${activeTab === 'dashboard' ? 'tab-btn-active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            Dashboard
-          </button>
-          <button
-            className={`tab-btn ${activeTab === 'contracts' ? 'tab-btn-active' : ''}`}
-            onClick={() => setActiveTab('contracts')}
-          >
-            Smart Contracts Code
-          </button>
-        </div>
-      </header>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div className="tab-bar">
+              <button
+                className={`tab-btn ${activeTab === 'dashboard' ? 'tab-btn-active' : ''}`}
+                onClick={() => setActiveTab('dashboard')}
+              >
+                Dashboard
+              </button>
+              <button
+                className={`tab-btn ${activeTab === 'contracts' ? 'tab-btn-active' : ''}`}
+                onClick={() => setActiveTab('contracts')}
+              >
+                Smart Contracts Code
+              </button>
+            </div>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              style={{ padding: '0.5rem', borderRadius: '12px', minWidth: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </div>
+        </header>
 
       {/* DASHBOARD VIEW */}
       {activeTab === 'dashboard' && (
@@ -487,7 +655,134 @@ function App() {
             </div>
           </section>
 
-          {/* MIDDLE GRID: DEFAI CHARTS + CONTROL PANEL */}
+        {/* INTERACTIVE STORYTELLER MODE SANDBOX */}
+        <section className="glass-panel story-panel">
+          <div className="panel-header" style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem' }}>
+            <h2 className="panel-title">
+              <Sparkles size={20} style={{ color: 'var(--primary)' }} />
+              Interactive DeFAI Storytelling Sandbox — The User Journey
+            </h2>
+            <span className="badge badge-lavender" style={{ textTransform: 'none', fontWeight: 600 }}>Storyteller Sandbox</span>
+          </div>
+          
+          <p style={{ margin: '0 0 1.25rem 0', fontSize: '0.9rem', color: 'var(--slate-muted)', lineHeight: 1.5 }}>
+            Aether.ai protects user portfolios using a modern <strong>Decentralized Finance + AI (DeFAI)</strong> architecture. 
+            Click on any of the market scenarios below to experience how the off-chain AI engine analyzes risk indicators in real time, 
+            coordinates Sui Move contract actions, executes DeepBook v3 trades, and records cryptographically verifiable audit logs on the Walrus Protocol.
+          </p>
+
+          <div className="story-grid">
+            {/* ACT I */}
+            <div 
+              className={`story-card ${currentScenario === 'STABLE' ? 'active' : ''}`}
+              onClick={() => { setIsAiRunning(false); triggerScenario('STABLE') }}
+            >
+              <div>
+                <div className="story-badge-container">
+                  <span className="story-act">Act I</span>
+                  <span className="badge badge-mint" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>Stable</span>
+                </div>
+                <h3 className="story-title">Consolidation</h3>
+                <p className="story-desc">
+                  Market is quiet and consolidating. SUI price trades in a stable range with neutral indicators.
+                </p>
+              </div>
+              <div>
+                <div className="story-metrics-badge">
+                  RSI: 52 | Sentiment: Neutral
+                </div>
+                <button 
+                  className={`btn story-btn ${currentScenario === 'STABLE' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                  Simulate Consolidation
+                </button>
+              </div>
+            </div>
+
+            {/* ACT II */}
+            <div 
+              className={`story-card ${currentScenario === 'FUD' ? 'active' : ''}`}
+              onClick={() => { setIsAiRunning(false); triggerScenario('FUD') }}
+            >
+              <div>
+                <div className="story-badge-container">
+                  <span className="story-act">Act II</span>
+                  <span className="badge badge-rose" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>-6% FUD</span>
+                </div>
+                <h3 className="story-title">Social Panic</h3>
+                <p className="story-desc">
+                  Social media analytics capture a sharp sentiment plunge. The AI senses early risk and hedges 25% of pool to USDC.
+                </p>
+              </div>
+              <div>
+                <div className="story-metrics-badge">
+                  RSI: 35 | Sentiment: Bearish
+                </div>
+                <button 
+                  className={`btn story-btn ${currentScenario === 'FUD' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                  Simulate Social FUD
+                </button>
+              </div>
+            </div>
+
+            {/* ACT III */}
+            <div 
+              className={`story-card ${currentScenario === 'FLASH_CRASH' ? 'active' : ''}`}
+              onClick={() => { setIsAiRunning(false); triggerScenario('FLASH_CRASH') }}
+            >
+              <div>
+                <div className="story-badge-container">
+                  <span className="story-act">Act III</span>
+                  <span className="badge badge-rose" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>-20% Crash</span>
+                </div>
+                <h3 className="story-title">Flash Crash</h3>
+                <p className="story-desc">
+                  A black swan liquidation cascade hits! With assets already hedged, Aether protects principal and uploads proofs to Walrus.
+                </p>
+              </div>
+              <div>
+                <div className="story-metrics-badge">
+                  RSI: 14 | Volatility: High
+                </div>
+                <button 
+                  className={`btn story-btn ${currentScenario === 'FLASH_CRASH' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                  Simulate Black Swan
+                </button>
+              </div>
+            </div>
+
+            {/* ACT IV */}
+            <div 
+              className={`story-card ${currentScenario === 'BULL_RUN' ? 'active' : ''}`}
+              onClick={() => { setIsAiRunning(false); triggerScenario('BULL_RUN') }}
+            >
+              <div>
+                <div className="story-badge-container">
+                  <span className="story-act">Act IV</span>
+                  <span className="badge badge-mint" style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem' }}>+15% Surge</span>
+                </div>
+                <h3 className="story-title">Bull Breakout</h3>
+                <p className="story-desc">
+                  Technical metrics capture strong buy signals. The AI swaps hedged USDC back to SUI to capture compounding recovery yield.
+                </p>
+              </div>
+              <div>
+                <div className="story-metrics-badge">
+                  RSI: 79 | MACD: Buy Signal
+                </div>
+                <button 
+                  className={`btn story-btn ${currentScenario === 'BULL_RUN' ? 'btn-primary' : 'btn-secondary'}`}
+                >
+                  Simulate Bull Surge
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* MIDDLE GRID: DEFAI CHARTS + CONTROL PANEL */}
           <div className="dashboard-grid">
             {/* LEFT COLUMN: PNL CHART & AI RADAR */}
             <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -636,7 +931,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="terminal-screen">
+              <div className="terminal-screen" ref={terminalScreenRef}>
                 {consoleLogs.map((log, index) => {
                   let isAetherPrompt = false
                   let isMarketPrompt = false
@@ -674,7 +969,6 @@ function App() {
                     </div>
                   )
                 })}
-                <div ref={terminalEndRef}></div>
               </div>
             </div>
 
@@ -930,6 +1224,7 @@ function App() {
       }}>
         <span>Aether.ai — Developed for the Sui Overflow 2026 Hackathon. Protected by Sui Move Guards and secured on Walrus Protocol.</span>
       </footer>
+    </div>
     </div>
   )
 }

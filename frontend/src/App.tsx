@@ -114,7 +114,10 @@ function App() {
   // Scroll terminal screen container locally to bottom on new log (fixes the window auto-scrolling bug!)
   useEffect(() => {
     if (terminalScreenRef.current) {
-      terminalScreenRef.current.scrollTop = terminalScreenRef.current.scrollHeight
+      const container = terminalScreenRef.current;
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
     }
   }, [consoleLogs])
 

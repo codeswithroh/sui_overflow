@@ -372,7 +372,6 @@ a:hover {
   flex-direction: column;
   gap: 0.75rem;
   padding-right: 0.5rem;
-  scroll-behavior: smooth;
 }
 
 /* Custom Scrollbar for Terminal */

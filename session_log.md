@@ -7,23 +7,23 @@ This document serves as the master context tracker for development sessions. Whe
 ## 📅 Session Log: May 21, 2026
 
 ### 🛠️ Achievements in this Session
-1. **Sui Move Smart Contracts (100% Complete):**
-   * Implemented `vault.move` (defines deposit/withdraw capabilities, mints vault shares, manages authorized risk-hedging agents, and enforces drawdown limits).
-   * Implemented `proof_registry.move` (manages trade proofs and shared events linked to Walrus Blob IDs).
-   * Verified contract correct behavior via `sui move test` (5 unit tests running and passing perfectly).
-2. **Off-Chain AI Agent Engine (100% Complete):**
-   * Built quantitative multi-indicator engine in `agent/src/` (`ai.ts`, `walrus.ts`, `deepbook.ts`, `agent.ts`) that ingests volatility, sentiment, RSI, and MACD parameters.
-   * Integrates real Sui Transaction Block builder (`@mysten/sui/transactions`) to compile swaps matching DeepBook v3.
-   * Integrates Walrus storage publisher with full network upload capability and local mock backup in `/mock_walrus_storage/` when network gateways are congested.
-   * Validated zero TypeScript compilation errors.
-3. **Premium Glassmorphic Frontend Dashboard (100% Complete):**
-   * Configured React + Vite + TypeScript in `/frontend/`.
-   * Created standard-compliant modern Vanilla CSS styling tokens inside `/frontend/src/index.css` following all brand guidelines ( Outfit / Plus Jakarta Sans fonts, layered shadows, glassmorphism, responsive grid gaps).
-   * Created rich interactive state management in `App.tsx` (real-time automated simulation mode toggle, deposit/withdraw operations, custom SVG price trend graphing, ledger listings, and Sui Move code explorer).
-   * Successfully ran Vite build checks (`npm run build`) with zero compilation or TypeScript errors.
-4. **Git Versioning & Workflow:**
-   * Committed all features sequentially using standard Conventional Commits.
+1. **Interactive Storyteller Walkthrough Mode (100% Complete):**
+   * Designed a premium narrative-driven storyteller sandbox module letting users step through Aether's DeFAI portfolio protection lifecycle.
+   * Created 4 distinct simulation interactive cards: Act I (Consolidation), Act II (Social FUD Panic), Act III (Flash Crash Black Swan), and Act IV (Bull Run Momentum breakout).
+   * Integrated responsive actions that instantly pause autonomous walkers, update SUI price trends, set off indicators (Sentiment, RSI, MACD, Volatility Filter), simulate DeepBook v3 contract swaps, and publish cryptographic proof uploads to the Walrus Protocol.
+2. **Hex Theme Colors & Toggle Logic (100% Complete):**
+   * Configured the exact light/dark theme color specs directly inside Vanilla CSS tokens (`index.css`).
+   * Created a beautiful toggle button in the dashboard header using lucide-react reactive `Sun` and `Moon` indicators, with smooth background-color and text transition effects across the entire container.
+3. **Solved Window Auto-Scrolling Blockers (100% Complete):**
+   * Safely removed the undefined `terminalEndRef` variable and resolved the react compilation/HMH runtime ReferenceError.
+   * Configured local scrolling targeting the terminal console screen container via `terminalScreenRef`, completely correcting the browser viewport jumping.
+4. **Sui Move Smart Contracts & AI Engine (100% Complete):**
+   * Verified Move contracts pass all tests successfully and are registered on Devnet.
+   * Built quantitative indicator agent with automated deepbook swaps and walrus blob publishing.
+5. **Git Versioning & Workflow:**
+   * Pushed cleanConventional Commits to GitHub repository.
    * Current Commit Status:
+     * `47c7f09 feat(frontend): integrate custom theme and storyteller walkthrough mode`
      * `2bb455a feat: implement premium glassmorphic React dashboard for Aether.ai`
      * `a7193ed feat: implement off-chain AI agent engine with Walrus publisher and DeepBook PTB builder`
      * `1836069 feat: implement core smart contracts and unit test suite`

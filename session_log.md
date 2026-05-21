@@ -15,8 +15,8 @@ This document serves as the master context tracker for development sessions. Whe
    * Configured the exact light/dark theme color specs directly inside Vanilla CSS tokens (`index.css`).
    * Created a beautiful toggle button in the dashboard header using lucide-react reactive `Sun` and `Moon` indicators, with smooth background-color and text transition effects across the entire container.
 3. **Solved Window Auto-Scrolling Blockers (100% Complete):**
-   * Safely removed the undefined `terminalEndRef` variable and resolved the react compilation/HMH runtime ReferenceError.
-   * Configured local scrolling targeting the terminal console screen container via `terminalScreenRef`, completely correcting the browser viewport jumping.
+   * Configured local scrolling targeting the terminal console screen container via `terminalScreenRef` and wrapped in `requestAnimationFrame` to ensure zero layout-shift or programmatic scroll adjustments leak to the window.
+   * Decoupled smooth scrolling animation (`scroll-behavior: smooth` is removed from the terminal) to prevent browser smooth-scroll-propagation bugs that automatically scroll the window down to keep the moving container in view. This provides a robust, zero-jumping instant console log snap.
 4. **Sui Move Smart Contracts & AI Engine (100% Complete):**
    * Verified Move contracts pass all tests successfully and are registered on Devnet.
    * Built quantitative indicator agent with automated deepbook swaps and walrus blob publishing.
